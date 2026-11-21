@@ -1,0 +1,29 @@
+{
+  "name": "com.haruchanz64.utility-ai-workbench",
+  "version": "1.0.0",
+  "displayName": "UtilityAIWorkbench",
+  "description": "Zero-dependency Unity 6 Utility AI runtime and UI Toolkit workbench with parametric response curves, Dave Mark compensated scoring, EditMode what-if simulation, and a live Play Mode runtime debugger.",
+  "unity": "6000.0",
+  "license": "MIT",
+  "keywords": [
+    "ai",
+    "utility-ai",
+    "behavior",
+    "decision-making",
+    "response-curve",
+    "debugger",
+    "ui-toolkit",
+    "unity-tool"
+  ],
+  "author": {
+    "name": "haruchanz64",
+    "url": "https://haruchanz64.github.io"
+  },
+  "samples": [
+    {
+      "displayName": "Survival Guard AI Demo",
+      "description": "Custom TypeCache-discovered considerations/actions and a menu command to generate a ready-to-test Guard UtilityBrainAsset.",
+      "path": "Samples~/SurvivalGuardDemo"
+    }
+  ]
+}
