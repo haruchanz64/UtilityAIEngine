@@ -1,6 +1,6 @@
 # UtilityAIWorkbench
 
-Zero-dependency Unity 6 Utility AI runtime and UI Toolkit workbench with parametric response curves, Dave Mark compensated scoring, an EditMode What-If Simulator, and a Live Runtime Debugger.
+Unity 6 Utility AI runtime and UI Toolkit workbench with parametric response curves, compensated scoring, an EditMode What-If Simulator, and a Play Mode Live Runtime Debugger.
 
 ## Features
 
