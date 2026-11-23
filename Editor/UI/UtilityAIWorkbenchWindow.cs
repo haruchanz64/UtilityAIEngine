@@ -24,7 +24,10 @@ namespace UtilityAIWorkbench.Editor.UI
             LiveDebugger = 2
         }
 
+        private const string PackageStyleSheetPath = "Packages/com.haruchanz64.utility-ai-workbench/Editor/UI/UtilityAIStyles.uss";
         private const string StyleSheetRelativePath = "Editor/UI/UtilityAIStyles.uss";
+        private const float NarrowWindowBreakpoint = 760f;
+        private const float StackedSplitBreakpoint = 640f;
 
         private WorkbenchTab _activeTab = WorkbenchTab.Authoring;
         private UtilityBrainAsset _brain;
@@ -32,6 +35,11 @@ namespace UtilityAIWorkbench.Editor.UI
         private int _selectedBehaviorIndex = -1;
         private int _selectedConsiderationIndex = -1;
         private float _curveProbeX = 0.5f;
+
+        // Resizable split state (persisted across tab rebuilds)
+        private float _horizontalSplitSize = 270f;
+        private float _verticalSplitSize = 220f;
+        private bool _isStackedSplit;
 
         // Simulator state
         private readonly UtilityBlackboard _simBlackboard = new();
@@ -58,13 +66,13 @@ namespace UtilityAIWorkbench.Editor.UI
         public static void ShowWindow()
         {
             var window = GetWindow<UtilityAIWorkbenchWindow>("Utility AI Workbench");
-            window.minSize = new Vector2(720, 480);
+            window.minSize = new Vector2(380, 340);
         }
 
         public static void OpenWithBrain(UtilityBrainAsset brain)
         {
             var window = GetWindow<UtilityAIWorkbenchWindow>("Utility AI Workbench");
-            window.minSize = new Vector2(720, 480);
+            window.minSize = new Vector2(380, 340);
             window.SetBrain(brain);
             window.SwitchTab(WorkbenchTab.Authoring);
         }
@@ -72,7 +80,7 @@ namespace UtilityAIWorkbench.Editor.UI
         public static void OpenDebuggerForAgent(UtilityAIAgent agent)
         {
             var window = GetWindow<UtilityAIWorkbenchWindow>("Utility AI Workbench");
-            window.minSize = new Vector2(720, 480);
+            window.minSize = new Vector2(380, 340);
             window._inspectedAgent = agent;
             if (agent != null && agent.Brain != null)
             {
@@ -144,27 +152,24 @@ namespace UtilityAIWorkbench.Editor.UI
             ApplyStyleSheet(_root);
             rootVisualElement.Add(_root);
 
-            _root.RegisterCallback<GeometryChangedEvent>(evt =>
-            {
-                _root.EnableInClassList("uai-root--narrow", evt.newRect.width < 760f);
-            });
+            _root.RegisterCallback<GeometryChangedEvent>(OnRootGeometryChanged);
 
             // Header
             var header = new VisualElement();
             header.AddToClassList("uai-header");
 
             var titleBlock = new VisualElement();
+            titleBlock.AddToClassList("uai-header-title-block");
             var title = new Label("Utility AI Workbench");
             title.AddToClassList("uai-header-title");
-            var subtitle = new Label("Parametric Response Curves  |  Compensated Scoring  |  What-If Simulator  |  Live Debugger");
+            var subtitle = new Label("Response Curves · Compensated Scoring · What-If Simulator · Live Debugger");
             subtitle.AddToClassList("uai-header-subtitle");
             titleBlock.Add(title);
             titleBlock.Add(subtitle);
             header.Add(titleBlock);
 
             var brainRow = new VisualElement();
-            brainRow.AddToClassList("uai-row");
-            brainRow.style.marginBottom = 0;
+            brainRow.AddToClassList("uai-header-controls");
 
             _brainField = new ObjectField("Brain")
             {
@@ -172,12 +177,12 @@ namespace UtilityAIWorkbench.Editor.UI
                 allowSceneObjects = false,
                 value = _brain
             };
-            _brainField.style.width = 260;
+            _brainField.AddToClassList("uai-brain-field");
             _brainField.RegisterValueChangedCallback(evt => SetBrain(evt.newValue as UtilityBrainAsset));
             brainRow.Add(_brainField);
 
             var createBrainBtn = new Button(CreateNewBrainAsset) { text = "New Brain" };
-            createBrainBtn.style.marginLeft = 6;
+            createBrainBtn.style.flexShrink = 0;
             brainRow.Add(createBrainBtn);
 
             header.Add(brainRow);
@@ -206,6 +211,59 @@ namespace UtilityAIWorkbench.Editor.UI
             _root.Add(body);
             UpdateNavButtons();
             RebuildActiveTab();
+        }
+
+        private void OnRootGeometryChanged(GeometryChangedEvent evt)
+        {
+            var width = evt.newRect.width;
+            if (width <= 1f) return;
+
+            var isNarrow = width < NarrowWindowBreakpoint;
+            var shouldStack = width < StackedSplitBreakpoint;
+
+            _root.EnableInClassList("uai-root--narrow", isNarrow);
+            _root.EnableInClassList("uai-root--stacked", shouldStack);
+
+            if (shouldStack != _isStackedSplit)
+            {
+                _isStackedSplit = shouldStack;
+                RebuildActiveTab();
+            }
+        }
+
+        private TwoPaneSplitView CreateResizableSplit(VisualElement firstPane, VisualElement secondPane)
+        {
+            var orientation = _isStackedSplit
+                ? TwoPaneSplitViewOrientation.Vertical
+                : TwoPaneSplitViewOrientation.Horizontal;
+
+            var initialSize = _isStackedSplit
+                ? Mathf.Clamp(_verticalSplitSize, 130f, 500f)
+                : Mathf.Clamp(_horizontalSplitSize, 180f, 520f);
+
+            var split = new TwoPaneSplitView(0, initialSize, orientation);
+            split.AddToClassList("uai-split-view");
+
+            firstPane.AddToClassList("uai-split-pane");
+            secondPane.AddToClassList("uai-split-pane");
+            secondPane.AddToClassList("uai-split-pane--right");
+
+            // Track user drags on the splitter so tab rebuilds preserve their chosen pane size.
+            firstPane.RegisterCallback<GeometryChangedEvent>(evt =>
+            {
+                if (_isStackedSplit)
+                {
+                    if (evt.newRect.height >= 120f) _verticalSplitSize = evt.newRect.height;
+                }
+                else
+                {
+                    if (evt.newRect.width >= 160f) _horizontalSplitSize = evt.newRect.width;
+                }
+            });
+
+            split.Add(firstPane);
+            split.Add(secondPane);
+            return split;
         }
 
         private Button CreateNavButton(string label, WorkbenchTab tab)
@@ -306,12 +364,8 @@ namespace UtilityAIWorkbench.Editor.UI
             _brainSerializedObject ??= new SerializedObject(_brain);
             _brainSerializedObject.Update();
 
-            var split = new VisualElement();
-            split.AddToClassList("uai-split");
-
             // Left Pane: Policy + Behavior List
             var leftScroll = new ScrollView();
-            leftScroll.AddToClassList("uai-pane-left");
 
             var policyCard = new VisualElement();
             policyCard.AddToClassList("uai-card");
@@ -324,7 +378,15 @@ namespace UtilityAIWorkbench.Editor.UI
             var inertiaProp = _brainSerializedObject.FindProperty("InertiaBonus");
             var deltaProp = _brainSerializedObject.FindProperty("MinSwitchDelta");
 
-            policyCard.Add(CreateBoundPropertyField(selectionProp));
+            var lastSelectionMode = _brain.SelectionMode;
+            policyCard.Add(CreateBoundPropertyField(selectionProp, () =>
+            {
+                if (_brain != null && _brain.SelectionMode != lastSelectionMode)
+                {
+                    lastSelectionMode = _brain.SelectionMode;
+                    EditorApplication.delayCall += RebuildActiveTab;
+                }
+            }));
             policyCard.Add(CreateBoundPropertyField(intervalProp));
             policyCard.Add(CreateBoundPropertyField(inertiaProp));
             policyCard.Add(CreateBoundPropertyField(deltaProp));
@@ -340,11 +402,9 @@ namespace UtilityAIWorkbench.Editor.UI
 
             var headerRow = new VisualElement();
             headerRow.AddToClassList("uai-row");
-            headerRow.style.justifyContent = Justify.SpaceBetween;
+            headerRow.AddToClassList("uai-row--between");
             headerRow.Add(CreateSectionTitle($"Behaviors ({_brain.Behaviors.Count})"));
-
-            var addBehaviorBtn = new Button(AddNewBehavior) { text = "+ Add" };
-            headerRow.Add(addBehaviorBtn);
+            headerRow.Add(new Button(AddNewBehavior) { text = "+ Add" });
             behaviorsCard.Add(headerRow);
 
             for (var i = 0; i < _brain.Behaviors.Count; i++)
@@ -352,10 +412,10 @@ namespace UtilityAIWorkbench.Editor.UI
                 var idx = i;
                 var b = _brain.Behaviors[i];
                 var row = new VisualElement();
-                row.AddToClassList("uai-history-item");
+                row.AddToClassList("uai-list-row");
                 if (idx == _selectedBehaviorIndex)
                 {
-                    row.AddToClassList("uai-history-item--selected");
+                    row.AddToClassList("uai-list-row--selected");
                 }
 
                 var labelBtn = new Button(() =>
@@ -367,23 +427,20 @@ namespace UtilityAIWorkbench.Editor.UI
                 {
                     text = $"{(b.Enabled ? "" : "[OFF] ")}{b.EffectiveName} (w:{b.Weight:F2})"
                 };
-                labelBtn.style.flexGrow = 1;
-                labelBtn.style.unityTextAlign = TextAnchor.MiddleLeft;
+                labelBtn.AddToClassList("uai-list-item-btn");
                 row.Add(labelBtn);
 
                 var delBtn = new Button(() => RemoveBehavior(idx)) { text = "X" };
-                delBtn.style.width = 24;
+                delBtn.AddToClassList("uai-list-delete-btn");
                 row.Add(delBtn);
 
                 behaviorsCard.Add(row);
             }
 
             leftScroll.Add(behaviorsCard);
-            split.Add(leftScroll);
 
             // Right Pane: Selected Behavior + Considerations + Painter2D Curve Preview
             var rightScroll = new ScrollView();
-            rightScroll.AddToClassList("uai-pane-right");
 
             if (_selectedBehaviorIndex >= 0 && _selectedBehaviorIndex < _brain.Behaviors.Count)
             {
@@ -410,11 +467,9 @@ namespace UtilityAIWorkbench.Editor.UI
                 actionCard.AddToClassList("uai-card");
                 var actionHeader = new VisualElement();
                 actionHeader.AddToClassList("uai-row");
-                actionHeader.style.justifyContent = Justify.SpaceBetween;
+                actionHeader.AddToClassList("uai-row--between");
                 actionHeader.Add(CreateSectionTitle($"Action: {(behavior.Action != null ? behavior.Action.DisplayName : "(None)")}"));
-
-                var pickActionBtn = new Button(() => ShowActionTypeMenu(behavior)) { text = "Select Action Type..." };
-                actionHeader.Add(pickActionBtn);
+                actionHeader.Add(new Button(() => ShowActionTypeMenu(behavior)) { text = "Select Action Type..." });
                 actionCard.Add(actionHeader);
 
                 var actionProp = behaviorProp.FindPropertyRelative("Action");
@@ -434,13 +489,13 @@ namespace UtilityAIWorkbench.Editor.UI
 
                 var consHeader = new VisualElement();
                 consHeader.AddToClassList("uai-row");
-                consHeader.style.justifyContent = Justify.SpaceBetween;
+                consHeader.AddToClassList("uai-row--between");
                 consHeader.Add(CreateSectionTitle($"Considerations ({behavior.Considerations.Count})"));
                 consHeader.Add(new Button(() => ShowConsiderationTypeMenu(behavior)) { text = "+ Add Consideration..." });
                 consCard.Add(consHeader);
 
                 var consListProp = behaviorProp.FindPropertyRelative("Considerations");
-                var curveGraph = new ResponseCurveGraphElement(170f);
+                var curveGraph = new ResponseCurveGraphElement(165f);
 
                 if (behavior.Considerations.Count == 0)
                 {
@@ -465,6 +520,7 @@ namespace UtilityAIWorkbench.Editor.UI
                         {
                             text = cons != null ? cons.DisplayName : $"Null #{cIdx}"
                         };
+                        btn.AddToClassList("uai-chip-btn");
                         if (capturedIdx == _selectedConsiderationIndex)
                             btn.AddToClassList("uai-nav-button--active");
                         tabRow.Add(btn);
@@ -519,8 +575,7 @@ namespace UtilityAIWorkbench.Editor.UI
                 rightScroll.Add(emptyCard);
             }
 
-            split.Add(rightScroll);
-            host.Add(split);
+            host.Add(CreateResizableSplit(leftScroll, rightScroll));
         }
 
         // ===================== TAB 2: WHAT-IF SIMULATOR =====================
@@ -534,19 +589,15 @@ namespace UtilityAIWorkbench.Editor.UI
 
             SyncSimulatorFactsFromBrain();
 
-            var split = new VisualElement();
-            split.AddToClassList("uai-split");
-
-            // Left: Virtual Blackboard Inputs
             var leftScroll = new ScrollView();
-            leftScroll.AddToClassList("uai-pane-left");
+            var rightScroll = new ScrollView();
+            var resultsHost = new VisualElement();
+            rightScroll.Add(resultsHost);
 
             var inputCard = new VisualElement();
             inputCard.AddToClassList("uai-card");
             inputCard.Add(CreateSectionTitle("Virtual Blackboard Inputs"));
             inputCard.Add(CreateMutedLabel("Drag sliders to simulate Utility AI decisions live in Edit Mode."));
-
-            var resultsHost = new VisualElement();
 
             if (_simFloatRanges.Count == 0 && _simBoolKeys.Count == 0)
             {
@@ -582,7 +633,6 @@ namespace UtilityAIWorkbench.Editor.UI
                 inputCard.Add(toggle);
             }
 
-            // Add custom virtual float key
             var customBox = new VisualElement();
             customBox.style.marginTop = 8;
             var keyField = new TextField("Add Float Key") { value = _newSimFactKey };
@@ -607,16 +657,9 @@ namespace UtilityAIWorkbench.Editor.UI
             inputCard.Add(customBox);
 
             leftScroll.Add(inputCard);
-            split.Add(leftScroll);
-
-            // Right: Live Evaluated Decision Ranking
-            var rightScroll = new ScrollView();
-            rightScroll.AddToClassList("uai-pane-right");
-            rightScroll.Add(resultsHost);
             RefreshSimulationResults(resultsHost);
 
-            split.Add(rightScroll);
-            host.Add(split);
+            host.Add(CreateResizableSplit(leftScroll, rightScroll));
         }
 
         private void RefreshSimulationResults(VisualElement resultsHost)
@@ -673,7 +716,7 @@ namespace UtilityAIWorkbench.Editor.UI
             controlsRow.AddToClassList("uai-row");
 
             var dropdown = new DropdownField("Active Agent", agentNames, currentIdx);
-            dropdown.style.width = 240;
+            dropdown.AddToClassList("uai-agent-dropdown");
             dropdown.RegisterValueChangedCallback(evt =>
             {
                 var idx = agentNames.IndexOf(evt.newValue);
@@ -686,36 +729,27 @@ namespace UtilityAIWorkbench.Editor.UI
             });
             controlsRow.Add(dropdown);
 
-            var pauseBtn = new Button(() =>
+            controlsRow.Add(new Button(() =>
             {
                 _inspectedAgent.IsPaused = !_inspectedAgent.IsPaused;
                 RebuildActiveTab();
             })
             {
-                text = _inspectedAgent.IsPaused ? "Resume Agent" : "Pause Agent"
-            };
-            pauseBtn.style.marginLeft = 6;
-            controlsRow.Add(pauseBtn);
+                text = _inspectedAgent.IsPaused ? "Resume" : "Pause"
+            });
 
-            var stepBtn = new Button(() =>
+            controlsRow.Add(new Button(() =>
             {
                 _inspectedAgent.StepOnce();
                 _selectedHistoryIndex = -1;
                 RebuildActiveTab();
             })
             {
-                text = "Step Once"
-            };
-            stepBtn.style.marginLeft = 4;
-            controlsRow.Add(stepBtn);
+                text = "Step"
+            });
 
-            var exportJsonBtn = new Button(() => ExportLiveHistory(asJson: true)) { text = "Export JSON" };
-            exportJsonBtn.style.marginLeft = 8;
-            controlsRow.Add(exportJsonBtn);
-
-            var exportCsvBtn = new Button(() => ExportLiveHistory(asJson: false)) { text = "Export CSV" };
-            exportCsvBtn.style.marginLeft = 4;
-            controlsRow.Add(exportCsvBtn);
+            controlsRow.Add(new Button(() => ExportLiveHistory(asJson: true)) { text = "Export JSON" });
+            controlsRow.Add(new Button(() => ExportLiveHistory(asJson: false)) { text = "Export CSV" });
 
             topCard.Add(controlsRow);
             host.Add(topCard);
@@ -731,22 +765,12 @@ namespace UtilityAIWorkbench.Editor.UI
             }
 
             var history = runner.History.ToChronologicalList();
-            DecisionSnapshot displayedSnapshot = null;
-            if (_selectedHistoryIndex >= 0 && _selectedHistoryIndex < history.Count)
-            {
-                displayedSnapshot = history[_selectedHistoryIndex];
-            }
-            else
-            {
-                displayedSnapshot = runner.LatestSnapshot;
-            }
-
-            var split = new VisualElement();
-            split.AddToClassList("uai-split");
+            DecisionSnapshot displayedSnapshot = _selectedHistoryIndex >= 0 && _selectedHistoryIndex < history.Count
+                ? history[_selectedHistoryIndex]
+                : runner.LatestSnapshot;
 
             // Left: Blackboard + History Timeline
             var leftScroll = new ScrollView();
-            leftScroll.AddToClassList("uai-pane-left");
 
             var bbCard = new VisualElement();
             bbCard.AddToClassList("uai-card");
@@ -761,9 +785,13 @@ namespace UtilityAIWorkbench.Editor.UI
                 foreach (var entry in entries)
                 {
                     var line = new VisualElement();
-                    line.AddToClassList("uai-history-item");
-                    line.Add(new Label($"{entry.Key} ({entry.ValueType})"));
-                    line.Add(new Label(entry.DisplayValue));
+                    line.AddToClassList("uai-bb-row");
+                    var kLbl = new Label($"{entry.Key} ({entry.ValueType})");
+                    kLbl.AddToClassList("uai-bb-key");
+                    var vLbl = new Label(entry.DisplayValue);
+                    vLbl.AddToClassList("uai-bb-value");
+                    line.Add(kLbl);
+                    line.Add(vLbl);
                     bbCard.Add(line);
                 }
             }
@@ -773,7 +801,7 @@ namespace UtilityAIWorkbench.Editor.UI
             histCard.AddToClassList("uai-card");
             var histHeader = new VisualElement();
             histHeader.AddToClassList("uai-row");
-            histHeader.style.justifyContent = Justify.SpaceBetween;
+            histHeader.AddToClassList("uai-row--between");
             histHeader.Add(CreateSectionTitle($"Decision History ({history.Count})"));
             if (_selectedHistoryIndex >= 0)
             {
@@ -800,7 +828,7 @@ namespace UtilityAIWorkbench.Editor.UI
                 {
                     text = $"#{snap.TickNumber} [{snap.Timestamp:F1}s] {(string.IsNullOrEmpty(snap.SelectedBehaviorName) ? "(None)" : snap.SelectedBehaviorName)} ({snap.SelectedScore:F2}){(snap.SwitchedBehavior ? " *" : "")}"
                 };
-                item.style.unityTextAlign = TextAnchor.MiddleLeft;
+                item.AddToClassList("uai-history-btn");
                 if (snapIdx == _selectedHistoryIndex)
                 {
                     item.AddToClassList("uai-nav-button--active");
@@ -808,17 +836,15 @@ namespace UtilityAIWorkbench.Editor.UI
                 histCard.Add(item);
             }
             leftScroll.Add(histCard);
-            split.Add(leftScroll);
 
             // Right: Behavior Score Breakdown
             var rightScroll = new ScrollView();
-            rightScroll.AddToClassList("uai-pane-right");
 
             var scoreCard = new VisualElement();
             scoreCard.AddToClassList("uai-card");
             if (displayedSnapshot == null)
             {
-                scoreCard.Add(CreateMutedLabel("No evaluations recorded yet. Click 'Step Once' or wait for next tick."));
+                scoreCard.Add(CreateMutedLabel("No evaluations recorded yet. Click 'Step' or wait for next tick."));
             }
             else
             {
@@ -828,9 +854,8 @@ namespace UtilityAIWorkbench.Editor.UI
                 AppendEvaluationBars(scoreCard, displayedSnapshot);
             }
             rightScroll.Add(scoreCard);
-            split.Add(rightScroll);
 
-            host.Add(split);
+            host.Add(CreateResizableSplit(leftScroll, rightScroll));
         }
 
         private void ExportLiveHistory(bool asJson)
@@ -892,8 +917,8 @@ namespace UtilityAIWorkbench.Editor.UI
                 header.Add(leftHeader);
 
                 var scoreText = eval.InertiaBonusApplied > 0.0001f
-                    ? $"{eval.FinalScore:F3}  (base {eval.BaseUtility:F2} x w{eval.Weight:F2} + inertia {eval.InertiaBonusApplied:F2})"
-                    : $"{eval.FinalScore:F3}  (base {eval.BaseUtility:F2} x w{eval.Weight:F2})";
+                    ? $"{eval.FinalScore:F3} (base {eval.BaseUtility:F2} x w{eval.Weight:F2} + inertia {eval.InertiaBonusApplied:F2})"
+                    : $"{eval.FinalScore:F3} (base {eval.BaseUtility:F2} x w{eval.Weight:F2})";
                 var scoreLbl = new Label(scoreText);
                 scoreLbl.AddToClassList("uai-score-value");
                 header.Add(scoreLbl);
@@ -1086,6 +1111,13 @@ namespace UtilityAIWorkbench.Editor.UI
 
         private static void ApplyStyleSheet(VisualElement root)
         {
+            var direct = AssetDatabase.LoadAssetAtPath<StyleSheet>(PackageStyleSheetPath);
+            if (direct != null)
+            {
+                root.styleSheets.Add(direct);
+                return;
+            }
+
             var guids = AssetDatabase.FindAssets("UtilityAIStyles t:StyleSheet");
             for (var i = 0; i < guids.Length; i++)
             {

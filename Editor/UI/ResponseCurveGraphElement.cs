@@ -73,7 +73,7 @@ namespace UtilityAIWorkbench.Editor.UI
 
             // Gridlines (4x4)
             painter.lineWidth = 1f;
-            painter.strokeColor = new Color(1f, 1f, 1f, 0.12f);
+            painter.strokeColor = new Color(0.55f, 0.58f, 0.65f, 0.24f);
             for (var i = 0; i <= 4; i++)
             {
                 var t = i / 4f;
