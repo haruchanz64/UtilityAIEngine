@@ -62,7 +62,7 @@ namespace UtilityAIWorkbench.Editor.UI
         private VisualElement _contentHost;
         private ObjectField _brainField;
 
-        [MenuItem("Tools/Utility AI Workbench")]
+        [MenuItem("Tools/HaruChanZ64/AI/UtilityAIWorkbench/Utility AI Workbench", false, 100)]
         public static void ShowWindow()
         {
             var window = GetWindow<UtilityAIWorkbenchWindow>("Utility AI Workbench");

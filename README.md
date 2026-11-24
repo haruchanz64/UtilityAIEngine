@@ -9,7 +9,7 @@ Unity 6 Utility AI runtime and UI Toolkit workbench with parametric response cur
 - Decision policy and anti-thrashing controls supporting `HighestScore`, `WeightedTopK`, and `SoftmaxTemperature` selection, per-behavior cooldowns, minimum commitment locks, inertia bonus, and minimum switch delta.
 - Case-insensitive `UtilityBlackboard` supporting `float`, `int`, `bool`, `string`, `Vector3`, and `UnityEngine.Object` facts with change events and debug snapshots.
 - TypeCache auto-discovery: any subclass of `UtilityConsiderationBase` or `UtilityActionBase` in your project appears automatically in the Workbench menus.
-- Three-tab UI Toolkit Workbench (`Tools > Utility AI Workbench`):
+- Three-tab UI Toolkit Workbench (`Tools > HaruChanZ64 > AI > UtilityAIWorkbench > Utility AI Workbench`):
   - Authoring & Curves: edit brain policies, behaviors, considerations, actions, and response curves with live `Painter2D` curve plotting.
   - What-If Simulator: auto-generates sliders and toggles for referenced Blackboard facts so you can test scoring and winners in Edit Mode without entering Play Mode.
   - Live Runtime Debugger: inspect active `UtilityAIAgent` instances in Play Mode with live ranked score bars, per-consideration `raw -> norm -> curve` breakdowns, live Blackboard view, Pause/Step controls, historical tick scrubbing, and JSON/CSV trace export.
@@ -26,7 +26,7 @@ Unity 6 Utility AI runtime and UI Toolkit workbench with parametric response cur
 
 ## Quick Start
 
-1. Open `Tools > Utility AI Workbench` and click `New Brain` (or import the `Survival Guard AI Demo` sample and run `Tools > Utility AI Workbench > Create Survival Guard Demo Brain`).
+1. Open `Tools > HaruChanZ64 > AI > UtilityAIWorkbench > Utility AI Workbench` and click `New Brain` (or import the `Survival Guard AI Demo` sample and run `Tools > HaruChanZ64 > AI > UtilityAIWorkbench > Create Survival Guard Demo Brain`).
 2. Add behaviors, considerations, and actions in Authoring & Curves, then tune response curves with the live `Painter2D` preview.
 3. Switch to What-If Simulator to drag Blackboard sliders and verify behavior rankings in Edit Mode.
 4. Attach `UtilityAIAgent` to a GameObject, assign your `UtilityBrainAsset`, enter Play Mode, and inspect live ticks in Live Runtime Debugger.

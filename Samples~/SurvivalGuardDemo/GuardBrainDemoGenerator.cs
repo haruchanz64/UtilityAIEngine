@@ -12,7 +12,7 @@ namespace UtilityAIWorkbench.Samples.SurvivalGuard
 {
     public static class GuardBrainDemoGenerator
     {
-        [MenuItem("Tools/Utility AI Workbench/Create Survival Guard Demo Brain")]
+        [MenuItem("Tools/HaruChanZ64/AI/UtilityAIWorkbench/Create Survival Guard Demo Brain", false, 101)]
         public static void CreateDemoBrain()
         {
             var path = EditorUtility.SaveFilePanelInProject(
