@@ -8,17 +8,27 @@ using UtilityAIWorkbench.Runtime.Engine;
 
 namespace UtilityAIWorkbench.Runtime.Components
 {
+    /// <summary>
+    /// Inspector-serialized initial float entry seeded into an agent's <see cref="UtilityBlackboard"/> on initialization.
+    /// </summary>
     [Serializable]
     public struct InitialFloatFact
     {
+        /// <summary>Case-insensitive blackboard key.</summary>
         public string Key;
+        /// <summary>Initial float value written to the blackboard.</summary>
         public float Value;
     }
 
+    /// <summary>
+    /// Inspector-serialized initial boolean entry seeded into an agent's <see cref="UtilityBlackboard"/> on initialization.
+    /// </summary>
     [Serializable]
     public struct InitialBoolFact
     {
+        /// <summary>Case-insensitive blackboard key.</summary>
         public string Key;
+        /// <summary>Initial boolean value written to the blackboard.</summary>
         public bool Value;
     }
 
@@ -30,9 +40,14 @@ namespace UtilityAIWorkbench.Runtime.Components
     public sealed class UtilityAIAgent : MonoBehaviour
     {
         private static readonly List<UtilityAIAgent> s_ActiveAgents = new();
+        /// <summary>Read-only list of all currently enabled <see cref="UtilityAIAgent"/> instances in Play Mode.</summary>
         public static IReadOnlyList<UtilityAIAgent> ActiveAgents => s_ActiveAgents;
+        /// <summary>Raised whenever an agent registers in <see cref="OnEnable"/> or unregisters in <see cref="OnDisable"/>.</summary>
         public static event Action OnActiveAgentsChanged;
 
+        /// <summary>
+        /// Clears static agent tracking before Play Mode starts so Enter Play Mode Options without Domain Reload stay clean.
+        /// </summary>
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetStaticRegistry()
         {
@@ -50,12 +65,17 @@ namespace UtilityAIWorkbench.Runtime.Components
         [SerializeField] private List<InitialFloatFact> initialFloats = new();
         [SerializeField] private List<InitialBoolFact> initialBools = new();
 
+        /// <summary>UnityEvent invoked with the newly selected behavior ID whenever the runner switches behaviors.</summary>
         [Header("Events")]
         public UnityEvent<string> onBehaviorChanged = new();
 
+        /// <summary>Currently assigned <see cref="UtilityBrainAsset"/>.</summary>
         public UtilityBrainAsset Brain => brain;
+        /// <summary>Runtime blackboard shared by this agent's considerations and actions.</summary>
         public UtilityBlackboard Blackboard { get; private set; }
+        /// <summary>Active <see cref="UtilityBrainRunner"/> executing the assigned brain, or null if no brain is assigned.</summary>
         public UtilityBrainRunner Runner { get; private set; }
+        /// <summary>When true, automatic per-frame ticking in <c>Update</c> is suspended until resumed or stepped via <see cref="StepOnce"/>.</summary>
         public bool IsPaused { get; set; }
 
         private void Awake()
@@ -95,6 +115,10 @@ namespace UtilityAIWorkbench.Runtime.Components
             Runner.Tick(Time.deltaTime);
         }
 
+        /// <summary>
+        /// Seeds initial blackboard facts, resolves any sibling <see cref="IUtilityTargetProvider"/>, and constructs a fresh <see cref="UtilityBrainRunner"/>.
+        /// </summary>
+        /// <param name="overrideBrain">Optional brain asset replacing the Inspector-assigned <see cref="Brain"/> before runner creation.</param>
         public void InitializeRunner(UtilityBrainAsset overrideBrain = null)
         {
             if (overrideBrain != null)
@@ -129,12 +153,20 @@ namespace UtilityAIWorkbench.Runtime.Components
             Runner.OnBehaviorChanged += (_, nextId) => onBehaviorChanged?.Invoke(nextId);
         }
 
+        /// <summary>
+        /// Advances the runner by one forced evaluation tick, typically called while paused from the Live Runtime Debugger.
+        /// </summary>
+        /// <param name="deltaTime">Simulated step duration in seconds.</param>
         public void StepOnce(float deltaTime = 0.2f)
         {
             if (Runner == null) return;
             Runner.Tick(deltaTime, forceEvaluate: true);
         }
 
+        /// <summary>
+        /// Updates the default target transform and immediately propagates it to the active runner context if initialized.
+        /// </summary>
+        /// <param name="target">New target transform, or null to clear the default target.</param>
         public void SetTarget(Transform target)
         {
             defaultTarget = target;

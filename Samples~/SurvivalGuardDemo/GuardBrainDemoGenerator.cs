@@ -10,8 +10,14 @@ using UtilityAIWorkbench.Runtime.Data;
 
 namespace UtilityAIWorkbench.Samples.SurvivalGuard
 {
+    /// <summary>
+    /// Editor utility generating a ready-to-inspect Survival Guard <see cref="UtilityBrainAsset"/> with four configured behaviors.
+    /// </summary>
     public static class GuardBrainDemoGenerator
     {
+        /// <summary>
+        /// Prompts for an asset path, creates the Survival Guard demo brain asset, and opens it in <see cref="UtilityAIWorkbenchWindow"/>.
+        /// </summary>
         [MenuItem("Tools/HaruChanZ64/AI/UtilityAIWorkbench/Create Survival Guard Demo Brain", false, 101)]
         public static void CreateDemoBrain()
         {

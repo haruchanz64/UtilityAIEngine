@@ -6,9 +6,15 @@ using UtilityAIWorkbench.Runtime.Data;
 
 namespace UtilityAIWorkbench.Editor.Inspectors
 {
+    /// <summary>
+    /// Custom Inspector for <see cref="UtilityBrainAsset"/> adding a shortcut button to open the asset in <see cref="UtilityAIWorkbenchWindow"/>.
+    /// </summary>
     [CustomEditor(typeof(UtilityBrainAsset))]
     public sealed class UtilityBrainAssetInspector : UnityEditor.Editor
     {
+        /// <summary>
+        /// Draws the Workbench launch button above the default serialized Inspector fields.
+        /// </summary>
         public override void OnInspectorGUI()
         {
             var brain = (UtilityBrainAsset)target;
@@ -23,9 +29,15 @@ namespace UtilityAIWorkbench.Editor.Inspectors
         }
     }
 
+    /// <summary>
+    /// Custom Inspector for <see cref="UtilityAIAgent"/> adding a Live Runtime Debugger button and an inline Play Mode status summary.
+    /// </summary>
     [CustomEditor(typeof(UtilityAIAgent))]
     public sealed class UtilityAIAgentInspector : UnityEditor.Editor
     {
+        /// <summary>
+        /// Draws the Live Runtime Debugger shortcut, live Play Mode active-behavior summary, and default Inspector fields.
+        /// </summary>
         public override void OnInspectorGUI()
         {
             var agent = (UtilityAIAgent)target;

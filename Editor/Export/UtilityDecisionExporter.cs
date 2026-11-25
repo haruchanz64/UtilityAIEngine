@@ -47,6 +47,12 @@ namespace UtilityAIWorkbench.Editor.Export
             public string disqualificationReason;
         }
 
+        /// <summary>
+        /// Serializes a sequence of decision snapshots into a JSON trace document via <see cref="JsonUtility"/>.
+        /// </summary>
+        /// <param name="snapshots">Chronological snapshots to serialize; null or null elements are skipped safely.</param>
+        /// <param name="prettyPrint">When true, formats the JSON with indentation for readability.</param>
+        /// <returns>JSON string containing the snapshot count and per-tick behavior evaluation breakdowns.</returns>
         public static string ToJson(IReadOnlyList<DecisionSnapshot> snapshots, bool prettyPrint = true)
         {
             var export = new TraceExportDto
@@ -97,6 +103,11 @@ namespace UtilityAIWorkbench.Editor.Export
             return JsonUtility.ToJson(export, prettyPrint);
         }
 
+        /// <summary>
+        /// Serializes decision snapshots into a flat RFC 4180 CSV table with one row per evaluated behavior per tick using invariant numeric formatting.
+        /// </summary>
+        /// <param name="snapshots">Chronological snapshots to export; returns only the header row if null or empty.</param>
+        /// <returns>CSV text starting with the column header line.</returns>
         public static string ToCsv(IReadOnlyList<DecisionSnapshot> snapshots)
         {
             var sb = new StringBuilder();
@@ -134,6 +145,9 @@ namespace UtilityAIWorkbench.Editor.Export
             return sb.ToString();
         }
 
+        /// <summary>
+        /// Wraps fields containing commas, quotes, or line breaks in double quotes with escaped inner quotes.
+        /// </summary>
         private static string EscapeCsv(string value)
         {
             if (string.IsNullOrEmpty(value)) return string.Empty;

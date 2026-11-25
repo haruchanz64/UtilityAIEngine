@@ -20,16 +20,32 @@ namespace UtilityAIWorkbench.Runtime.Engine
         private float _timeUntilNextEvaluation;
         private int _tickCounter;
 
+        /// <summary>Evaluation and execution context shared across all considerations and actions.</summary>
         public UtilityContext Context { get; }
+        /// <summary>Bounded circular history of recorded <see cref="DecisionSnapshot"/> entries.</summary>
         public DecisionRingBuffer History { get; }
+        /// <summary>Currently executing behavior definition, or null if idle.</summary>
         public UtilityBehaviorDefinition ActiveBehavior => _activeBehavior;
+        /// <summary>Identifier of <see cref="ActiveBehavior"/>, or <see cref="string.Empty"/> when idle.</summary>
         public string ActiveBehaviorId => _activeBehavior != null ? _activeBehavior.Id : string.Empty;
+        /// <summary>Status returned by the most recent action tick (defaults to <see cref="UtilityActionStatus.Running"/>).</summary>
         public UtilityActionStatus LastActionStatus { get; private set; } = UtilityActionStatus.Running;
+        /// <summary>Most recently recorded decision snapshot, or null before the first evaluation.</summary>
         public DecisionSnapshot LatestSnapshot => History.Latest;
 
+        /// <summary>Raised after every decision evaluation with the newly recorded snapshot.</summary>
         public event Action<DecisionSnapshot> OnDecisionEvaluated;
+        /// <summary>Raised with <c>(previousBehaviorId, nextBehaviorId)</c> whenever the active behavior transitions.</summary>
         public event Action<string, string> OnBehaviorChanged;
 
+        /// <summary>
+        /// Creates a stateful runner bound to <paramref name="brain"/>.
+        /// </summary>
+        /// <param name="brain">Brain asset defining behaviors, selection policy, and hysteresis; must not be null.</param>
+        /// <param name="context">Optional shared context; a new <see cref="UtilityContext"/> is created when null.</param>
+        /// <param name="targetProvider">Optional provider resolving per-behavior <see cref="UtilityBehaviorDefinition.TargetKey"/> lookups.</param>
+        /// <param name="historyCapacity">Maximum snapshots retained in <see cref="History"/>.</param>
+        /// <param name="randomSeed">Optional RNG seed forwarded to <see cref="UtilityScorer"/> for deterministic stochastic selection.</param>
         public UtilityBrainRunner(
             UtilityBrainAsset brain,
             UtilityContext context = null,
@@ -44,6 +60,12 @@ namespace UtilityAIWorkbench.Runtime.Engine
             History = new DecisionRingBuffer(historyCapacity);
         }
 
+        /// <summary>
+        /// Advances elapsed time, re-evaluates utility when the cadence interval elapses (or when idle/forced),
+        /// and ticks the active behavior's action.
+        /// </summary>
+        /// <param name="deltaTime">Step duration in seconds (clamped to non-negative).</param>
+        /// <param name="forceEvaluate">If true, forces a utility re-evaluation on this tick regardless of <see cref="UtilityBrainAsset.EvaluationInterval"/>.</param>
         public void Tick(float deltaTime, bool forceEvaluate = false)
         {
             deltaTime = Mathf.Max(0f, deltaTime);
@@ -73,6 +95,7 @@ namespace UtilityAIWorkbench.Runtime.Engine
                     if (LastActionStatus == UtilityActionStatus.Completed || LastActionStatus == UtilityActionStatus.Failed)
                     {
                         ExitActiveBehavior(applyCooldown: true);
+                        // Trigger an immediate re-evaluation on the next Tick instead of waiting for EvaluationInterval.
                         _timeUntilNextEvaluation = 0f;
                     }
                 }
@@ -83,6 +106,10 @@ namespace UtilityAIWorkbench.Runtime.Engine
             }
         }
 
+        /// <summary>
+        /// Immediately runs a decision evaluation and behavior transition without ticking the active action, resetting the cadence timer.
+        /// </summary>
+        /// <returns>The newly recorded <see cref="DecisionSnapshot"/>.</returns>
         public DecisionSnapshot ForceEvaluateNow()
         {
             EvaluateAndTransition();
@@ -90,12 +117,18 @@ namespace UtilityAIWorkbench.Runtime.Engine
             return LatestSnapshot;
         }
 
+        /// <summary>
+        /// Exits the currently active behavior without applying its cooldown and resets the evaluation timer.
+        /// </summary>
         public void Stop()
         {
             ExitActiveBehavior(applyCooldown: false);
             _timeUntilNextEvaluation = 0f;
         }
 
+        /// <summary>
+        /// Scores all behaviors, pushes the snapshot to <see cref="History"/>, transitions behaviors when unlocked, and raises runner events.
+        /// </summary>
         private void EvaluateAndTransition()
         {
             _tickCounter++;
@@ -135,6 +168,9 @@ namespace UtilityAIWorkbench.Runtime.Engine
             OnDecisionEvaluated?.Invoke(snapshot);
         }
 
+        /// <summary>
+        /// Invokes <see cref="UtilityActionBase.OnExit"/> on the active behavior, optionally starts its cooldown, and clears active state.
+        /// </summary>
         private void ExitActiveBehavior(bool applyCooldown)
         {
             if (_activeBehavior == null) return;

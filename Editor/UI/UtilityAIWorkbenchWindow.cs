@@ -15,6 +15,10 @@ using UtilityAIWorkbench.Runtime.Engine;
 
 namespace UtilityAIWorkbench.Editor.UI
 {
+    /// <summary>
+    /// Three-tab UI Toolkit EditorWindow providing brain authoring with live curve plotting,
+    /// an EditMode What-If Simulator, and a Play Mode Live Runtime Debugger with trace export.
+    /// </summary>
     public sealed class UtilityAIWorkbenchWindow : EditorWindow
     {
         private enum WorkbenchTab
@@ -62,6 +66,9 @@ namespace UtilityAIWorkbench.Editor.UI
         private VisualElement _contentHost;
         private ObjectField _brainField;
 
+        /// <summary>
+        /// Opens or focuses the Utility AI Workbench window from the Unity Tools menu.
+        /// </summary>
         [MenuItem("Tools/HaruChanZ64/AI/UtilityAIWorkbench/Utility AI Workbench", false, 100)]
         public static void ShowWindow()
         {
@@ -69,6 +76,10 @@ namespace UtilityAIWorkbench.Editor.UI
             window.minSize = new Vector2(380, 340);
         }
 
+        /// <summary>
+        /// Opens the Workbench window bound to <paramref name="brain"/> on the Authoring &amp; Curves tab.
+        /// </summary>
+        /// <param name="brain">Brain asset to inspect and edit.</param>
         public static void OpenWithBrain(UtilityBrainAsset brain)
         {
             var window = GetWindow<UtilityAIWorkbenchWindow>("Utility AI Workbench");
@@ -77,6 +88,10 @@ namespace UtilityAIWorkbench.Editor.UI
             window.SwitchTab(WorkbenchTab.Authoring);
         }
 
+        /// <summary>
+        /// Opens the Workbench window on the Live Runtime Debugger tab focused on <paramref name="agent"/>.
+        /// </summary>
+        /// <param name="agent">Scene agent to inspect in Play Mode.</param>
         public static void OpenDebuggerForAgent(UtilityAIAgent agent)
         {
             var window = GetWindow<UtilityAIWorkbenchWindow>("Utility AI Workbench");
@@ -114,6 +129,9 @@ namespace UtilityAIWorkbench.Editor.UI
             }
         }
 
+        /// <summary>
+        /// Resets history selection and auto-selects the first active agent when transitioning into or out of Play Mode.
+        /// </summary>
         private void OnPlayModeStateChanged(PlayModeStateChange state)
         {
             if (state == PlayModeStateChange.EnteredPlayMode || state == PlayModeStateChange.EnteredEditMode)
@@ -128,6 +146,9 @@ namespace UtilityAIWorkbench.Editor.UI
             }
         }
 
+        /// <summary>
+        /// Polls live debugger updates at roughly 6.6 Hz while unpaused and viewing the latest snapshot in Play Mode.
+        /// </summary>
         private void OnEditorUpdate()
         {
             if (_activeTab != WorkbenchTab.LiveDebugger || !Application.isPlaying)
@@ -143,6 +164,9 @@ namespace UtilityAIWorkbench.Editor.UI
             }
         }
 
+        /// <summary>
+        /// Builds the persistent UI Toolkit header, tab navigation sidebar, and active content host.
+        /// </summary>
         public void CreateGUI()
         {
             rootVisualElement.Clear();
@@ -213,6 +237,9 @@ namespace UtilityAIWorkbench.Editor.UI
             RebuildActiveTab();
         }
 
+        /// <summary>
+        /// Toggles responsive narrow and stacked-split USS classes when the window width crosses layout breakpoints.
+        /// </summary>
         private void OnRootGeometryChanged(GeometryChangedEvent evt)
         {
             var width = evt.newRect.width;
@@ -231,6 +258,9 @@ namespace UtilityAIWorkbench.Editor.UI
             }
         }
 
+        /// <summary>
+        /// Wraps two panes in a horizontal or stacked <see cref="TwoPaneSplitView"/> while persisting user drag sizes across tab rebuilds.
+        /// </summary>
         private TwoPaneSplitView CreateResizableSplit(VisualElement firstPane, VisualElement secondPane)
         {
             var orientation = _isStackedSplit
@@ -287,6 +317,9 @@ namespace UtilityAIWorkbench.Editor.UI
             _debuggerNavBtn?.EnableInClassList("uai-nav-button--active", _activeTab == WorkbenchTab.LiveDebugger);
         }
 
+        /// <summary>
+        /// Binds a new <see cref="UtilityBrainAsset"/>, resets selection indices, syncs simulator facts, and rebuilds the active tab.
+        /// </summary>
         private void SetBrain(UtilityBrainAsset brain)
         {
             _brain = brain;
@@ -304,6 +337,9 @@ namespace UtilityAIWorkbench.Editor.UI
             RebuildActiveTab();
         }
 
+        /// <summary>
+        /// Prompts the user for an asset location, creates a starter <see cref="UtilityBrainAsset"/> with a baseline idle behavior, and selects it.
+        /// </summary>
         private void CreateNewBrainAsset()
         {
             var path = EditorUtility.SaveFilePanelInProject(
@@ -333,6 +369,9 @@ namespace UtilityAIWorkbench.Editor.UI
             SetBrain(asset);
         }
 
+        /// <summary>
+        /// Clears the content host and constructs the visual tree for the currently selected workbench tab.
+        /// </summary>
         private void RebuildActiveTab()
         {
             if (_contentHost == null) return;
@@ -352,7 +391,9 @@ namespace UtilityAIWorkbench.Editor.UI
             }
         }
 
-        // ===================== TAB 1: AUTHORING & CURVES =====================
+        /// <summary>
+        /// Builds the Authoring &amp; Curves tab with brain policy controls, behavior list, action selector, and live <see cref="ResponseCurveGraphElement"/> preview.
+        /// </summary>
         private void BuildAuthoringTab(VisualElement host)
         {
             if (_brain == null)
@@ -578,7 +619,9 @@ namespace UtilityAIWorkbench.Editor.UI
             host.Add(CreateResizableSplit(leftScroll, rightScroll));
         }
 
-        // ===================== TAB 2: WHAT-IF SIMULATOR =====================
+        /// <summary>
+        /// Builds the EditMode What-If Simulator tab with auto-detected Blackboard sliders/toggles, custom float inputs, and live ranking output.
+        /// </summary>
         private void BuildSimulatorTab(VisualElement host)
         {
             if (_brain == null)
@@ -662,6 +705,9 @@ namespace UtilityAIWorkbench.Editor.UI
             host.Add(CreateResizableSplit(leftScroll, rightScroll));
         }
 
+        /// <summary>
+        /// Evaluates the currently selected brain against the virtual simulator blackboard and renders ranked score bars.
+        /// </summary>
         private void RefreshSimulationResults(VisualElement resultsHost)
         {
             resultsHost.Clear();
@@ -681,7 +727,9 @@ namespace UtilityAIWorkbench.Editor.UI
             resultsHost.Add(card);
         }
 
-        // ===================== TAB 3: LIVE RUNTIME DEBUGGER =====================
+        /// <summary>
+        /// Builds the Play Mode Live Runtime Debugger tab with agent selector, Pause/Step/Export controls, Blackboard view, and history scrubber.
+        /// </summary>
         private void BuildLiveDebuggerTab(VisualElement host)
         {
             var topCard = new VisualElement();
@@ -858,6 +906,9 @@ namespace UtilityAIWorkbench.Editor.UI
             host.Add(CreateResizableSplit(leftScroll, rightScroll));
         }
 
+        /// <summary>
+        /// Prompts for an output path and writes the inspected agent's chronological decision history as JSON or CSV.
+        /// </summary>
         private void ExportLiveHistory(bool asJson)
         {
             if (_inspectedAgent?.Runner == null) return;
@@ -874,7 +925,9 @@ namespace UtilityAIWorkbench.Editor.UI
             Debug.Log($"[UtilityAIWorkbench] Exported {history.Count} snapshot(s) to '{path}'.");
         }
 
-        // ===================== SHARED HELPERS =====================
+        /// <summary>
+        /// Renders descending score bars, status badges, and per-consideration raw/normalized/curve breakdowns into <paramref name="parent"/>.
+        /// </summary>
         private static void AppendEvaluationBars(VisualElement parent, DecisionSnapshot snapshot)
         {
             var sorted = snapshot.Evaluations.OrderByDescending(e => e.FinalScore).ToList();
@@ -946,6 +999,9 @@ namespace UtilityAIWorkbench.Editor.UI
             }
         }
 
+        /// <summary>
+        /// Appends a new behavior definition to the selected brain with Undo support and selects it.
+        /// </summary>
         private void AddNewBehavior()
         {
             if (_brain == null) return;
@@ -964,6 +1020,9 @@ namespace UtilityAIWorkbench.Editor.UI
             RebuildActiveTab();
         }
 
+        /// <summary>
+        /// Removes the behavior at <paramref name="index"/> with Undo support and clamps active selection indices.
+        /// </summary>
         private void RemoveBehavior(int index)
         {
             if (_brain == null || index < 0 || index >= _brain.Behaviors.Count) return;
@@ -976,6 +1035,9 @@ namespace UtilityAIWorkbench.Editor.UI
             RebuildActiveTab();
         }
 
+        /// <summary>
+        /// Opens a context menu populated via <see cref="TypeCache"/> listing all concrete <see cref="UtilityConsiderationBase"/> subclasses.
+        /// </summary>
         private void ShowConsiderationTypeMenu(UtilityBehaviorDefinition behavior)
         {
             var menu = new GenericMenu();
@@ -1003,6 +1065,9 @@ namespace UtilityAIWorkbench.Editor.UI
             menu.ShowAsContext();
         }
 
+        /// <summary>
+        /// Opens a context menu populated via <see cref="TypeCache"/> listing all concrete <see cref="UtilityActionBase"/> subclasses plus a clear option.
+        /// </summary>
         private void ShowActionTypeMenu(UtilityBehaviorDefinition behavior)
         {
             var menu = new GenericMenu();
@@ -1036,6 +1101,10 @@ namespace UtilityAIWorkbench.Editor.UI
             menu.ShowAsContext();
         }
 
+        /// <summary>
+        /// Scans the active brain's <see cref="BlackboardFloatConsideration"/> and <see cref="BlackboardBoolConsideration"/> entries
+        /// to populate slider bounds and default values in the EditMode simulator.
+        /// </summary>
         private void SyncSimulatorFactsFromBrain()
         {
             _simFloatRanges.Clear();
@@ -1075,6 +1144,9 @@ namespace UtilityAIWorkbench.Editor.UI
             }
         }
 
+        /// <summary>
+        /// Creates a UI Toolkit <see cref="PropertyField"/> bound to <see cref="_brainSerializedObject"/> with an optional change callback.
+        /// </summary>
         private PropertyField CreateBoundPropertyField(SerializedProperty prop, Action onChanged = null)
         {
             var field = new PropertyField(prop);
@@ -1109,6 +1181,9 @@ namespace UtilityAIWorkbench.Editor.UI
             return lbl;
         }
 
+        /// <summary>
+        /// Loads <c>UtilityAIStyles.uss</c> from the UPM package path, falling back to an <see cref="AssetDatabase"/> search for embedded copies.
+        /// </summary>
         private static void ApplyStyleSheet(VisualElement root)
         {
             var direct = AssetDatabase.LoadAssetAtPath<StyleSheet>(PackageStyleSheetPath);

@@ -17,6 +17,10 @@ namespace UtilityAIWorkbench.Editor.UI
         private ResponseCurve _curve;
         private float? _probeX;
 
+        /// <summary>
+        /// Constructs a curve preview graph with a fixed canvas height and caption label.
+        /// </summary>
+        /// <param name="height">Height of the <see cref="Painter2D"/> plot canvas in UI pixels.</param>
         public ResponseCurveGraphElement(float height = 165f)
         {
             AddToClassList("uai-curve-container");
@@ -32,6 +36,11 @@ namespace UtilityAIWorkbench.Editor.UI
             Add(_caption);
         }
 
+        /// <summary>
+        /// Binds the curve to plot, updates the caption readout, and queues a canvas repaint.
+        /// </summary>
+        /// <param name="curve">Response curve to plot, or null to display only the background grid.</param>
+        /// <param name="probeX">Optional normalized X coordinate in [0..1] highlighted with a crosshair and output readout.</param>
         public void SetCurve(ResponseCurve curve, float? probeX = null)
         {
             _curve = curve;
@@ -54,6 +63,9 @@ namespace UtilityAIWorkbench.Editor.UI
             _canvas.MarkDirtyRepaint();
         }
 
+        /// <summary>
+        /// Draws the 4x4 grid, shaded area fill, sampled curve polyline, and optional probe crosshair using <see cref="Painter2D"/>.
+        /// </summary>
         private void OnGenerateVisualContent(MeshGenerationContext ctx)
         {
             var rect = _canvas.contentRect;

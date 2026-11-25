@@ -14,11 +14,26 @@ namespace UtilityAIWorkbench.Runtime.Engine
     {
         private readonly System.Random _rng;
 
+        /// <summary>
+        /// Creates a scorer with an optional deterministic random seed for <see cref="BehaviorSelectionMode.WeightedTopK"/> and <see cref="BehaviorSelectionMode.SoftmaxTemperature"/>.
+        /// </summary>
+        /// <param name="seed">Optional RNG seed; omit for a time-dependent default seed.</param>
         public UtilityScorer(int? seed = null)
         {
             _rng = seed.HasValue ? new System.Random(seed.Value) : new System.Random();
         }
 
+        /// <summary>
+        /// Evaluates every behavior in <paramref name="brain"/>, applies cooldown, veto, inertia, commitment lock,
+        /// and switch-delta rules, and selects the winning behavior.
+        /// </summary>
+        /// <param name="brain">Brain asset containing behaviors and decision policy; must not be null.</param>
+        /// <param name="context">Evaluation context (a temporary empty context is created if null). <see cref="UtilityContext.Target"/> is restored before returning.</param>
+        /// <param name="tickNumber">Monotonic tick counter recorded on the returned snapshot.</param>
+        /// <param name="currentBehaviorId">Optional ID of the currently active behavior for inertia, commitment lock, and switch-delta checks.</param>
+        /// <param name="lockedByCommitment">If true, forces <paramref name="currentBehaviorId"/> to remain selected even when another candidate scores higher.</param>
+        /// <param name="targetProvider">Optional provider resolving per-behavior <see cref="UtilityBehaviorDefinition.TargetKey"/> targets during scoring.</param>
+        /// <returns>An immutable <see cref="DecisionSnapshot"/> containing the winner and every behavior's score breakdown.</returns>
         public DecisionSnapshot Evaluate(
             UtilityBrainAsset brain,
             UtilityContext context,
@@ -66,6 +81,7 @@ namespace UtilityAIWorkbench.Runtime.Engine
                 }
             }
 
+            // Restore the caller's target so per-behavior TargetKey overrides do not leak past Evaluate.
             context.Target = originalTarget;
 
             var winnerIndex = -1;
@@ -122,6 +138,14 @@ namespace UtilityAIWorkbench.Runtime.Engine
                 records);
         }
 
+        /// <summary>
+        /// Evaluates a single behavior's eligibility, considerations, aggregation, weight, and inertia bonus.
+        /// Behaviors with no non-null considerations receive a baseline utility of 1.0.
+        /// </summary>
+        /// <param name="behavior">Behavior definition to evaluate.</param>
+        /// <param name="context">Evaluation context supplying blackboard facts, target, and cooldown state.</param>
+        /// <param name="inertiaBonus">Additive hysteresis bonus applied when this behavior is currently active.</param>
+        /// <returns>A detailed <see cref="BehaviorEvaluationRecord"/> including any disqualification reason.</returns>
         public static BehaviorEvaluationRecord ScoreBehavior(
             UtilityBehaviorDefinition behavior,
             UtilityContext context,
@@ -196,8 +220,11 @@ namespace UtilityAIWorkbench.Runtime.Engine
         }
 
         /// <summary>
-        /// Combines consideration outputs using Dave Mark's compensation factor (default) or standard reducers.
+        /// Combines consideration curve outputs in [0..1] using Dave Mark's compensation factor or a standard reducer.
         /// </summary>
+        /// <param name="details">Evaluated consideration records to aggregate.</param>
+        /// <param name="mode">Aggregation strategy to apply.</param>
+        /// <returns>Aggregated base utility in [0..1], or 0 when <paramref name="details"/> is null or empty.</returns>
         public static float AggregateScores(IReadOnlyList<ConsiderationScoreRecord> details, ScoreAggregationMode mode)
         {
             if (details == null || details.Count == 0)
@@ -264,6 +291,9 @@ namespace UtilityAIWorkbench.Runtime.Engine
             }
         }
 
+        /// <summary>
+        /// Sorts eligible candidates by descending <see cref="BehaviorEvaluationRecord.FinalScore"/> and picks a winner according to <see cref="UtilityBrainAsset.SelectionMode"/>.
+        /// </summary>
         private int SelectCandidate(UtilityBrainAsset brain, List<BehaviorEvaluationRecord> records, List<int> candidateIndices)
         {
             candidateIndices.Sort((a, b) => records[b].FinalScore.CompareTo(records[a].FinalScore));
@@ -295,7 +325,7 @@ namespace UtilityAIWorkbench.Runtime.Engine
                 return candidateIndices[k - 1];
             }
 
-            // SoftmaxTemperature
+            // SoftmaxTemperature: subtract maxScore for numerical stability before exponentiating.
             var temp = Mathf.Max(0.05f, brain.SoftmaxTemperature);
             var maxScore = records[candidateIndices[0]].FinalScore;
             var weights = new double[candidateIndices.Count];
@@ -320,6 +350,9 @@ namespace UtilityAIWorkbench.Runtime.Engine
             return candidateIndices[0];
         }
 
+        /// <summary>
+        /// Finds the index of the record matching <paramref name="behaviorId"/> (case-insensitive), or -1 if absent.
+        /// </summary>
         private static int FindRecordIndex(List<BehaviorEvaluationRecord> records, string behaviorId)
         {
             for (var i = 0; i < records.Count; i++)

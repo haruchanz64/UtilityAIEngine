@@ -1,6 +1,6 @@
 {
   "name": "com.haruchanz64.utility-ai-workbench",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "displayName": "UtilityAIWorkbench",
   "description": "Unity 6 Utility AI runtime and UI Toolkit workbench with parametric response curves, compensated scoring, an EditMode what-if simulator, and a Play Mode runtime debugger.",
   "unity": "6000.0",
