@@ -5,6 +5,12 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-11-26
+### Changed
+- **Breaking:** Renamed package from `UtilityAIWorkbench` (`com.haruchanz64.utility-ai-workbench`) to `UtilityAIEngine` (`com.haruchanz64.utility-ai-engine`).
+- Renamed assembly definitions (`UtilityAIEngine.Runtime`, `UtilityAIEngine.Editor`, `UtilityAIEngine.Editor.Tests`) and root C# namespaces (`UtilityAIEngine.*`).
+- Updated Unity menu paths to `Tools > HaruChanZ64 > AI > UtilityAIEngine` and `Assets > Create > UtilityAIEngine > Utility Brain`.
+
 ## [1.0.1] - 2026-11-25
 ### Documentation
 - Upgraded `README.md` into a full developer guide covering scoring architecture, action lifecycles, custom consideration/action/target-provider examples, core API reference tables, samples, tests, and troubleshooting.

@@ -1,6 +1,6 @@
-# UtilityAIWorkbench
+# UtilityAIEngine
 
-Modular Utility AI runtime and UI Toolkit workbench for Unity 6. It pairs a pure-C# scoring engine (`UtilityScorer` and `UtilityBrainRunner`) with a `UtilityAIAgent` component, parametric response curves, a typed Blackboard, an EditMode What-If Simulator, and a Play Mode Live Runtime Debugger with JSON/CSV trace export.
+Modular Utility AI runtime engine and UI Toolkit workbench for Unity 6. It pairs a pure-C# scoring engine (`UtilityScorer` and `UtilityBrainRunner`) with a `UtilityAIAgent` component, parametric response curves, a typed Blackboard, an EditMode What-If Simulator, and a Play Mode Live Runtime Debugger with JSON/CSV trace export.
 
 ## Features
 
@@ -9,7 +9,7 @@ Modular Utility AI runtime and UI Toolkit workbench for Unity 6. It pairs a pure
 - **Decision policies and anti-thrashing (`UtilityBrainAsset`):** Supports `HighestScore`, `WeightedTopK`, and `SoftmaxTemperature` candidate selection alongside per-behavior `CooldownSeconds`, `MinCommitmentSeconds`, `InertiaBonus`, `MinSwitchDelta`, and per-consideration `CanVeto` disqualification.
 - **Case-insensitive typed Blackboard (`UtilityBlackboard`):** Stores `float`, `int`, `bool`, `string`, `Vector3`, and `UnityEngine.Object` facts with `OnKeyChanged` notifications, automatic `int` to `float` fallback in `TryGetFloat`, and sorted `CaptureDebugEntries()` snapshots.
 - **TypeCache auto-discovery:** Any non-abstract, non-generic `[Serializable]` subclass of `UtilityConsiderationBase` or `UtilityActionBase` appears automatically in the Workbench consideration and action menus via `[SerializeReference]`.
-- **Three-tab UI Toolkit Workbench (`Tools > HaruChanZ64 > AI > UtilityAIWorkbench > Utility AI Workbench`):**
+- **Three-tab UI Toolkit Workbench (`Tools > HaruChanZ64 > AI > UtilityAIEngine > Utility AI Workbench`):**
   - **Authoring & Curves:** Edit brain policy, behaviors, actions, considerations, and `ResponseCurve` parameters with a `Painter2D` curve plot (`ResponseCurveGraphElement`) and live X-input probe.
   - **What-If Simulator:** Auto-generates sliders and toggles for referenced `BlackboardFloatConsideration` and `BlackboardBoolConsideration` keys so you can test rankings in Edit Mode without entering Play Mode.
   - **Live Runtime Debugger:** Inspect enabled Play Mode `UtilityAIAgent` instances with ranked score bars, per-consideration `raw -> norm -> curve` readouts, live Blackboard view, Pause/Step controls, bounded ring-buffer tick scrubbing, and JSON/CSV export (`UtilityDecisionExporter`).
@@ -29,7 +29,7 @@ Modular Utility AI runtime and UI Toolkit workbench for Unity 6. It pairs a pure
 3. Enter:
 
 ```text
-https://github.com/haruchanz64/UtilityAIWorkbench.git
+https://github.com/haruchanz64/UtilityAIEngine.git
 ```
 
 ### Local package
@@ -39,18 +39,18 @@ Add the package path to `Packages/manifest.json`:
 ```json
 {
   "dependencies": {
-    "com.haruchanz64.utility-ai-workbench": "file:../Plugins/UtilityAIWorkbench"
+    "com.haruchanz64.utility-ai-engine": "file:../Plugins/UtilityAIEngine"
   }
 }
 ```
 
 ## Quick start
 
-1. Open **Tools > HaruChanZ64 > AI > UtilityAIWorkbench > Utility AI Workbench** and click **New Brain** (or create an asset via **Assets > Create > Utility AI Workbench > Utility Brain**).
-   - To inspect a complete four-behavior example right away, import the **Survival Guard AI Demo** sample from Package Manager and run **Tools > HaruChanZ64 > AI > UtilityAIWorkbench > Create Survival Guard Demo Brain**.
+1. Open **Tools > HaruChanZ64 > AI > UtilityAIEngine > Utility AI Workbench** and click **New Brain** (or create an asset via **Assets > Create > UtilityAIEngine > Utility Brain**).
+   - To inspect a complete four-behavior example right away, import the **Survival Guard AI Demo** sample from Package Manager and run **Tools > HaruChanZ64 > AI > UtilityAIEngine > Create Survival Guard Demo Brain**.
 2. In **Authoring & Curves**, add behaviors, assign a `UtilityActionBase`, add considerations, and tune each `ResponseCurve` using the live `Painter2D` preview and `Preview Input X` slider.
 3. Switch to **What-If Simulator** to drag Blackboard sliders and toggles in Edit Mode and verify which behavior wins across edge cases.
-4. Attach `UtilityAIAgent` (from `UtilityAIWorkbench.Runtime.Components`) to a scene GameObject, assign your `UtilityBrainAsset`, and optionally seed **Initial Blackboard Facts** (`initialFloats` and `initialBools`) or assign `Default Target`.
+4. Attach `UtilityAIAgent` (from `UtilityAIEngine.Runtime.Components`) to a scene GameObject, assign your `UtilityBrainAsset`, and optionally seed **Initial Blackboard Facts** (`initialFloats` and `initialBools`) or assign `Default Target`.
 5. Enter Play Mode and open **Live Runtime Debugger** (or click **Open Live Runtime Debugger** in the `UtilityAIAgent` Inspector) to inspect live ticks, pause/step execution, scrub history, or export JSON/CSV traces.
 
 ## Core concepts
@@ -86,7 +86,7 @@ Subclass `UtilityConsiderationBase` with `[Serializable]`. The Workbench discove
 ```csharp
 using System;
 using UnityEngine;
-using UtilityAIWorkbench.Runtime.Core;
+using UtilityAIEngine.Runtime.Core;
 
 [Serializable]
 public sealed class StaminaRatioConsideration : UtilityConsiderationBase
@@ -114,7 +114,7 @@ Subclass `UtilityActionBase` with `[Serializable]` and store per-agent mutable s
 ```csharp
 using System;
 using UnityEngine;
-using UtilityAIWorkbench.Runtime.Core;
+using UtilityAIEngine.Runtime.Core;
 
 [Serializable]
 public sealed class ReloadWeaponAction : UtilityActionBase
@@ -158,8 +158,8 @@ Attach a component implementing `IUtilityTargetProvider` to the same GameObject 
 
 ```csharp
 using UnityEngine;
-using UtilityAIWorkbench.Runtime.Components;
-using UtilityAIWorkbench.Runtime.Core;
+using UtilityAIEngine.Runtime.Components;
+using UtilityAIEngine.Runtime.Core;
 
 [RequireComponent(typeof(UtilityAIAgent))]
 public sealed class GuardSensors : MonoBehaviour, IUtilityTargetProvider
@@ -203,9 +203,9 @@ public sealed class GuardSensors : MonoBehaviour, IUtilityTargetProvider
 Use `UtilityBrainRunner` directly without a `MonoBehaviour` for simulations, server ticks, or EditMode tests:
 
 ```csharp
-using UtilityAIWorkbench.Runtime.Core;
-using UtilityAIWorkbench.Runtime.Data;
-using UtilityAIWorkbench.Runtime.Engine;
+using UtilityAIEngine.Runtime.Core;
+using UtilityAIEngine.Runtime.Data;
+using UtilityAIEngine.Runtime.Engine;
 
 public static class HeadlessSimulationExample
 {
@@ -222,24 +222,24 @@ public static class HeadlessSimulationExample
 }
 ```
 
-In Editor scripts, pass `runner.History.ToChronologicalList()` to `UtilityDecisionExporter.ToJson(...)` or `UtilityDecisionExporter.ToCsv(...)` (namespace `UtilityAIWorkbench.Editor.Export`).
+In Editor scripts, pass `runner.History.ToChronologicalList()` to `UtilityDecisionExporter.ToJson(...)` or `UtilityDecisionExporter.ToCsv(...)` (namespace `UtilityAIEngine.Editor.Export`).
 
 ## Extension contracts and core API
 
 | Type | Namespace | Purpose | Built-in implementation |
 | :--- | :--- | :--- | :--- |
-| `UtilityConsiderationBase` | `UtilityAIWorkbench.Runtime.Core` | Base class for normalized `[0..1]` input sampling and curve evaluation | `BlackboardFloatConsideration`, `BlackboardBoolConsideration`, `DistanceToTargetConsideration`, `CooldownReadinessConsideration`, `RandomNoiseConsideration`, `ConstantConsideration` |
-| `UtilityActionBase` | `UtilityAIWorkbench.Runtime.Core` | Executable behavior action lifecycle (`OnEnter`, `OnTick`, `OnExit`) | `WaitAction`, `SetBlackboardFloatAction`, `DeltaBlackboardFloatAction`, `SetBlackboardBoolAction`, `MoveTowardsTargetAction`, `LogDebugAction` |
-| `IUtilityTargetProvider` | `UtilityAIWorkbench.Runtime.Core` | Resolves per-behavior `TargetKey` strings to a `Transform` during scoring and execution | Implement on a sibling `MonoBehaviour` or pass to `UtilityBrainRunner` |
-| `ResponseCurve` | `UtilityAIWorkbench.Runtime.Core` | Parametric `[0..1] -> [0..1]` curve evaluator with inversion and clamping | `Linear`, `Polynomial`, `Logistic`, `Logit`, `Step`, `CustomAnimationCurve` |
-| `UtilityBlackboard` | `UtilityAIWorkbench.Runtime.Core` | Case-insensitive typed fact storage with change events and debug snapshots | `UtilityBlackboard` |
-| `UtilityContext` | `UtilityAIWorkbench.Runtime.Core` | Shared evaluation context holding agent, target, timing, blackboard, and cooldowns | `UtilityContext` |
-| `UtilityBrainAsset` | `UtilityAIWorkbench.Runtime.Data` | ScriptableObject holding behaviors, selection mode, cadence, and hysteresis | `UtilityBrainAsset` |
-| `UtilityBehaviorDefinition` | `UtilityAIWorkbench.Runtime.Data` | Serializable behavior record with weight, cooldown, commitment lock, considerations, and action | `UtilityBehaviorDefinition` |
-| `UtilityScorer` | `UtilityAIWorkbench.Runtime.Engine` | Pure-C# scorer implementing compensated aggregation, vetoes, hysteresis, and selection | `UtilityScorer` |
-| `UtilityBrainRunner` | `UtilityAIWorkbench.Runtime.Engine` | Stateful cadence runner managing active action lifecycle and `DecisionRingBuffer` history | `UtilityBrainRunner` |
-| `UtilityAIAgent` | `UtilityAIWorkbench.Runtime.Components` | Scene `MonoBehaviour` driving a brain, registering for live debugging, and drawing target gizmos | `UtilityAIAgent` |
-| `UtilityDecisionExporter` | `UtilityAIWorkbench.Editor.Export` | Serializes `DecisionSnapshot` histories to JSON or RFC 4180 CSV | `UtilityDecisionExporter` |
+| `UtilityConsiderationBase` | `UtilityAIEngine.Runtime.Core` | Base class for normalized `[0..1]` input sampling and curve evaluation | `BlackboardFloatConsideration`, `BlackboardBoolConsideration`, `DistanceToTargetConsideration`, `CooldownReadinessConsideration`, `RandomNoiseConsideration`, `ConstantConsideration` |
+| `UtilityActionBase` | `UtilityAIEngine.Runtime.Core` | Executable behavior action lifecycle (`OnEnter`, `OnTick`, `OnExit`) | `WaitAction`, `SetBlackboardFloatAction`, `DeltaBlackboardFloatAction`, `SetBlackboardBoolAction`, `MoveTowardsTargetAction`, `LogDebugAction` |
+| `IUtilityTargetProvider` | `UtilityAIEngine.Runtime.Core` | Resolves per-behavior `TargetKey` strings to a `Transform` during scoring and execution | Implement on a sibling `MonoBehaviour` or pass to `UtilityBrainRunner` |
+| `ResponseCurve` | `UtilityAIEngine.Runtime.Core` | Parametric `[0..1] -> [0..1]` curve evaluator with inversion and clamping | `Linear`, `Polynomial`, `Logistic`, `Logit`, `Step`, `CustomAnimationCurve` |
+| `UtilityBlackboard` | `UtilityAIEngine.Runtime.Core` | Case-insensitive typed fact storage with change events and debug snapshots | `UtilityBlackboard` |
+| `UtilityContext` | `UtilityAIEngine.Runtime.Core` | Shared evaluation context holding agent, target, timing, blackboard, and cooldowns | `UtilityContext` |
+| `UtilityBrainAsset` | `UtilityAIEngine.Runtime.Data` | ScriptableObject holding behaviors, selection mode, cadence, and hysteresis | `UtilityBrainAsset` |
+| `UtilityBehaviorDefinition` | `UtilityAIEngine.Runtime.Data` | Serializable behavior record with weight, cooldown, commitment lock, considerations, and action | `UtilityBehaviorDefinition` |
+| `UtilityScorer` | `UtilityAIEngine.Runtime.Engine` | Pure-C# scorer implementing compensated aggregation, vetoes, hysteresis, and selection | `UtilityScorer` |
+| `UtilityBrainRunner` | `UtilityAIEngine.Runtime.Engine` | Stateful cadence runner managing active action lifecycle and `DecisionRingBuffer` history | `UtilityBrainRunner` |
+| `UtilityAIAgent` | `UtilityAIEngine.Runtime.Components` | Scene `MonoBehaviour` driving a brain, registering for live debugging, and drawing target gizmos | `UtilityAIAgent` |
+| `UtilityDecisionExporter` | `UtilityAIEngine.Editor.Export` | Serializes `DecisionSnapshot` histories to JSON or RFC 4180 CSV | `UtilityDecisionExporter` |
 
 ## Included samples
 
@@ -247,7 +247,7 @@ Import **Survival Guard AI Demo** (`Samples~/SurvivalGuardDemo`) from the Packag
 
 - `MissingHealthRatioConsideration`: TypeCache-discovered custom consideration computing `(MaxHealth - Health) / MaxHealth` for heal and flee curves.
 - `ConsumeMedkitAction`: TypeCache-discovered custom action with a cast timer (`CastTime`) that checks medkit count, restores health on the Blackboard, and decrements medkits on completion.
-- `GuardBrainDemoGenerator`: Editor menu item (**Tools > HaruChanZ64 > AI > UtilityAIWorkbench > Create Survival Guard Demo Brain**) that generates a four-behavior `UtilityBrainAsset` (`Attack Target`, `Use Medkit`, `Flee Threat`, `Patrol Area`) and opens it in the Workbench.
+- `GuardBrainDemoGenerator`: Editor menu item (**Tools > HaruChanZ64 > AI > UtilityAIEngine > Create Survival Guard Demo Brain**) that generates a four-behavior `UtilityBrainAsset` (`Attack Target`, `Use Medkit`, `Flee Threat`, `Patrol Area`) and opens it in the Workbench.
 
 ## Testing
 

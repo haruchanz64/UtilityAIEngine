@@ -1,8 +1,8 @@
 using System;
 using UnityEngine;
-using UtilityAIWorkbench.Runtime.Core;
+using UtilityAIEngine.Runtime.Core;
 
-namespace UtilityAIWorkbench.Runtime.Considerations
+namespace UtilityAIEngine.Runtime.Considerations
 {
     /// <summary>
     /// Reads a float or int key from the Blackboard and normalizes it from [<see cref="MinValue"/>..<see cref="MaxValue"/>] to [0..1].

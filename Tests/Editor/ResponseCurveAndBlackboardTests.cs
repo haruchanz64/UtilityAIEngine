@@ -1,8 +1,8 @@
 using NUnit.Framework;
 using UnityEngine;
-using UtilityAIWorkbench.Runtime.Core;
+using UtilityAIEngine.Runtime.Core;
 
-namespace UtilityAIWorkbench.Tests
+namespace UtilityAIEngine.Tests
 {
     public sealed class ResponseCurveAndBlackboardTests
     {

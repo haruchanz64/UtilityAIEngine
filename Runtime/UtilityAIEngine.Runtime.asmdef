@@ -1,6 +1,6 @@
 {
-  "name": "UtilityAIWorkbench.Runtime",
-  "rootNamespace": "UtilityAIWorkbench.Runtime",
+  "name": "UtilityAIEngine.Runtime",
+  "rootNamespace": "UtilityAIEngine.Runtime",
   "references": [],
   "includePlatforms": [],
   "excludePlatforms": [],

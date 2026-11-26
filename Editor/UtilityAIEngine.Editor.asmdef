@@ -1,8 +1,8 @@
 {
-  "name": "UtilityAIWorkbench.Editor",
-  "rootNamespace": "UtilityAIWorkbench.Editor",
+  "name": "UtilityAIEngine.Editor",
+  "rootNamespace": "UtilityAIEngine.Editor",
   "references": [
-    "UtilityAIWorkbench.Runtime"
+    "UtilityAIEngine.Runtime"
   ],
   "includePlatforms": [
     "Editor"

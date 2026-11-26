@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace UtilityAIWorkbench.Runtime.Core
+namespace UtilityAIEngine.Runtime.Core
 {
     /// <summary>
     /// Immutable formatted snapshot of a single <see cref="UtilityBlackboard"/> entry for editor and debugger display.

@@ -1,8 +1,8 @@
 {
-  "name": "com.haruchanz64.utility-ai-workbench",
-  "version": "1.0.1",
-  "displayName": "UtilityAIWorkbench",
-  "description": "Unity 6 Utility AI runtime and UI Toolkit workbench with parametric response curves, compensated scoring, an EditMode what-if simulator, and a Play Mode runtime debugger.",
+  "name": "com.haruchanz64.utility-ai-engine",
+  "version": "2.0.0",
+  "displayName": "UtilityAIEngine",
+  "description": "Utility AI runtime engine for Unity 6 with parametric response curves, compensated scoring, an EditMode what-if simulator, and a UI Toolkit workbench debugger.",
   "unity": "6000.0",
   "license": "MIT",
   "keywords": [

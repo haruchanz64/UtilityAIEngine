@@ -1,11 +1,11 @@
 using System;
 using UnityEngine;
-using UtilityAIWorkbench.Runtime.Core;
+using UtilityAIEngine.Runtime.Core;
 
-namespace UtilityAIWorkbench.Samples.SurvivalGuard
+namespace UtilityAIEngine.Samples.SurvivalGuard
 {
     /// <summary>
-    /// Example custom consideration auto-discovered by TypeCache in UtilityAIWorkbench.
+    /// Example custom consideration auto-discovered by TypeCache in UtilityAIEngine.
     /// Computes urgency ratio = MissingHealth / MaxHealth so designers can shape heal and flee curves.
     /// </summary>
     [Serializable]

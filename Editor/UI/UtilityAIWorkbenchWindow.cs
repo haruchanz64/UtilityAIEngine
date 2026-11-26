@@ -6,14 +6,14 @@ using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
-using UtilityAIWorkbench.Editor.Export;
-using UtilityAIWorkbench.Runtime.Components;
-using UtilityAIWorkbench.Runtime.Considerations;
-using UtilityAIWorkbench.Runtime.Core;
-using UtilityAIWorkbench.Runtime.Data;
-using UtilityAIWorkbench.Runtime.Engine;
+using UtilityAIEngine.Editor.Export;
+using UtilityAIEngine.Runtime.Components;
+using UtilityAIEngine.Runtime.Considerations;
+using UtilityAIEngine.Runtime.Core;
+using UtilityAIEngine.Runtime.Data;
+using UtilityAIEngine.Runtime.Engine;
 
-namespace UtilityAIWorkbench.Editor.UI
+namespace UtilityAIEngine.Editor.UI
 {
     /// <summary>
     /// Three-tab UI Toolkit EditorWindow providing brain authoring with live curve plotting,
@@ -28,7 +28,7 @@ namespace UtilityAIWorkbench.Editor.UI
             LiveDebugger = 2
         }
 
-        private const string PackageStyleSheetPath = "Packages/com.haruchanz64.utility-ai-workbench/Editor/UI/UtilityAIStyles.uss";
+        private const string PackageStyleSheetPath = "Packages/com.haruchanz64.utility-ai-engine/Editor/UI/UtilityAIStyles.uss";
         private const string StyleSheetRelativePath = "Editor/UI/UtilityAIStyles.uss";
         private const float NarrowWindowBreakpoint = 760f;
         private const float StackedSplitBreakpoint = 640f;
@@ -69,7 +69,7 @@ namespace UtilityAIWorkbench.Editor.UI
         /// <summary>
         /// Opens or focuses the Utility AI Workbench window from the Unity Tools menu.
         /// </summary>
-        [MenuItem("Tools/HaruChanZ64/AI/UtilityAIWorkbench/Utility AI Workbench", false, 100)]
+        [MenuItem("Tools/HaruChanZ64/AI/UtilityAIEngine/Utility AI Workbench", false, 100)]
         public static void ShowWindow()
         {
             var window = GetWindow<UtilityAIWorkbenchWindow>("Utility AI Workbench");
@@ -922,7 +922,7 @@ namespace UtilityAIWorkbench.Editor.UI
                 : UtilityDecisionExporter.ToCsv(history);
 
             File.WriteAllText(path, content);
-            Debug.Log($"[UtilityAIWorkbench] Exported {history.Count} snapshot(s) to '{path}'.");
+            Debug.Log($"[UtilityAIEngine] Exported {history.Count} snapshot(s) to '{path}'.");
         }
 
         /// <summary>

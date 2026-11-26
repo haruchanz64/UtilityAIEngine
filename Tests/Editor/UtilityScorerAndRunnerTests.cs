@@ -1,13 +1,13 @@
 using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
-using UtilityAIWorkbench.Editor.Export;
-using UtilityAIWorkbench.Runtime.Considerations;
-using UtilityAIWorkbench.Runtime.Core;
-using UtilityAIWorkbench.Runtime.Data;
-using UtilityAIWorkbench.Runtime.Engine;
+using UtilityAIEngine.Editor.Export;
+using UtilityAIEngine.Runtime.Considerations;
+using UtilityAIEngine.Runtime.Core;
+using UtilityAIEngine.Runtime.Data;
+using UtilityAIEngine.Runtime.Engine;
 
-namespace UtilityAIWorkbench.Tests
+namespace UtilityAIEngine.Tests
 {
     public sealed class UtilityScorerAndRunnerTests
     {

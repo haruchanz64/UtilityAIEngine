@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace UtilityAIWorkbench.Runtime.Data
+namespace UtilityAIEngine.Runtime.Data
 {
     /// <summary>
     /// Candidate selection policy applied after all eligible behaviors have been scored.
@@ -19,7 +19,7 @@ namespace UtilityAIWorkbench.Runtime.Data
     /// <summary>
     /// Reusable ScriptableObject defining a Utility AI brain's behaviors, selection policy, and hysteresis settings.
     /// </summary>
-    [CreateAssetMenu(fileName = "NewUtilityBrain", menuName = "Utility AI Workbench/Utility Brain", order = 0)]
+    [CreateAssetMenu(fileName = "NewUtilityBrain", menuName = "UtilityAIEngine/Utility Brain", order = 0)]
     public sealed class UtilityBrainAsset : ScriptableObject
     {
         /// <summary>Optional designer notes describing the brain's role and expected blackboard keys.</summary>

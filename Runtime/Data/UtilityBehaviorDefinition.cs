@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UtilityAIWorkbench.Runtime.Core;
+using UtilityAIEngine.Runtime.Core;
 
-namespace UtilityAIWorkbench.Runtime.Data
+namespace UtilityAIEngine.Runtime.Data
 {
     /// <summary>
     /// Strategy used to reduce multiple consideration curve outputs into a single [0..1] base utility score.

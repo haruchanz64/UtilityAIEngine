@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UtilityAIWorkbench.Runtime.Core;
-using UtilityAIWorkbench.Runtime.Data;
+using UtilityAIEngine.Runtime.Core;
+using UtilityAIEngine.Runtime.Data;
 
-namespace UtilityAIWorkbench.Runtime.Engine
+namespace UtilityAIEngine.Runtime.Engine
 {
     /// <summary>
     /// Pure-C# Utility AI scorer implementing Dave Mark's compensation factor, cooldown gating,

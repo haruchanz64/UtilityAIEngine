@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
-using UtilityAIWorkbench.Runtime.Core;
-using UtilityAIWorkbench.Runtime.Data;
-using UtilityAIWorkbench.Runtime.Engine;
+using UtilityAIEngine.Runtime.Core;
+using UtilityAIEngine.Runtime.Data;
+using UtilityAIEngine.Runtime.Engine;
 
-namespace UtilityAIWorkbench.Runtime.Components
+namespace UtilityAIEngine.Runtime.Components
 {
     /// <summary>
     /// Inspector-serialized initial float entry seeded into an agent's <see cref="UtilityBlackboard"/> on initialization.

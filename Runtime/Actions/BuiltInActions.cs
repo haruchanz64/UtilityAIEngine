@@ -1,8 +1,8 @@
 using System;
 using UnityEngine;
-using UtilityAIWorkbench.Runtime.Core;
+using UtilityAIEngine.Runtime.Core;
 
-namespace UtilityAIWorkbench.Runtime.Actions
+namespace UtilityAIEngine.Runtime.Actions
 {
     /// <summary>
     /// Timed idle action that stays <see cref="UtilityActionStatus.Running"/> until <see cref="Duration"/> seconds elapse, then completes.

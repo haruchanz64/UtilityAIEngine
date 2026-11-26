@@ -1,11 +1,11 @@
 {
-  "name": "UtilityAIWorkbench.Editor.Tests",
-  "rootNamespace": "UtilityAIWorkbench.Tests",
+  "name": "UtilityAIEngine.Editor.Tests",
+  "rootNamespace": "UtilityAIEngine.Tests",
   "references": [
     "UnityEngine.TestRunner",
     "UnityEditor.TestRunner",
-    "UtilityAIWorkbench.Runtime",
-    "UtilityAIWorkbench.Editor"
+    "UtilityAIEngine.Runtime",
+    "UtilityAIEngine.Editor"
   ],
   "includePlatforms": [
     "Editor"

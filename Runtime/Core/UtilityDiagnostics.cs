@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace UtilityAIWorkbench.Runtime.Core
+namespace UtilityAIEngine.Runtime.Core
 {
     /// <summary>
     /// Immutable evaluation trace for a single consideration, capturing raw input, normalized input, curved output, and veto state.

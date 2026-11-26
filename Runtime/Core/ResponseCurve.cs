@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace UtilityAIWorkbench.Runtime.Core
+namespace UtilityAIEngine.Runtime.Core
 {
     /// <summary>
     /// Supported curve shapes evaluated by <see cref="ResponseCurve"/>.

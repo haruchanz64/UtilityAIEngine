@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace UtilityAIWorkbench.Runtime.Core
+namespace UtilityAIEngine.Runtime.Core
 {
     /// <summary>
     /// Shared evaluation and execution context passed to every consideration and action,

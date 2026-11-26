@@ -1,10 +1,10 @@
 using UnityEditor;
 using UnityEngine;
-using UtilityAIWorkbench.Editor.UI;
-using UtilityAIWorkbench.Runtime.Components;
-using UtilityAIWorkbench.Runtime.Data;
+using UtilityAIEngine.Editor.UI;
+using UtilityAIEngine.Runtime.Components;
+using UtilityAIEngine.Runtime.Data;
 
-namespace UtilityAIWorkbench.Editor.Inspectors
+namespace UtilityAIEngine.Editor.Inspectors
 {
     /// <summary>
     /// Custom Inspector for <see cref="UtilityBrainAsset"/> adding a shortcut button to open the asset in <see cref="UtilityAIWorkbenchWindow"/>.

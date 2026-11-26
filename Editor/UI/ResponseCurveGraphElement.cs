@@ -1,8 +1,8 @@
 using UnityEngine;
 using UnityEngine.UIElements;
-using UtilityAIWorkbench.Runtime.Core;
+using UtilityAIEngine.Runtime.Core;
 
-namespace UtilityAIWorkbench.Editor.UI
+namespace UtilityAIEngine.Editor.UI
 {
     /// <summary>
     /// GPU-accelerated UI Toolkit Painter2D graph displaying a [0..1] ResponseCurve with an optional live probe crosshair.

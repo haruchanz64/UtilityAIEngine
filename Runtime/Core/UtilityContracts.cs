@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace UtilityAIWorkbench.Runtime.Core
+namespace UtilityAIEngine.Runtime.Core
 {
     /// <summary>
     /// Execution status returned by <see cref="UtilityActionBase.OnTick"/> each runner step.
